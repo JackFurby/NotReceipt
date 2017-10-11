@@ -1,6 +1,7 @@
 # Dataset
 
-For my AI to function I will need a dataset of receipts. As it will be working with images my dataset will need to include as many images as I can find. At the time of writing I was unable to find an existing dataset and therefore I will be creating my own.
+For my AI to function I will need a dataset of receipts. As it will be working with images my dataset will need to include as many images as I can find. At the time of writing I was unable to find an existing dataset and therefore I will be creating my own. The licence for this repository is for the code. Any media I include may follow a different licence.
+
 ## getReceipt.py
 
 This script returns a list of URL's to images of Receipts. I found a database of around 4200 receipts available for anyone to use.
@@ -43,3 +44,19 @@ csvfile.close()
 ~~~
 
 The final part of this script takes the URL's and writes them to a CSV file. The CSV file is structured with the first column holding the URL, the second holding the name I will give the image once downloaded and the third holding a 1 which will represent being a receipt.
+
+## getOther.py
+
+This script is much the same as getReceipt.py. The differences it has are with the site it is returning the image URL's from (in this case it is www.image-net.org). There are 4 search terms including printed media, paper, sign and screen. each of these return a XML document with the URL's in text format.
+
+~~~ Python
+searchTerms = ['n06263609', 'n14974264', 'n06793231', 'n04152593']
+
+for pageSearch in range(len(searchTerms)):
+    page = requests.get('http://www.image-net.org/api/text/imagenet.synset.geturls?wnid=%s' % searchTerms[pageSearch])
+    tree = html.fromstring(page.content)
+    images = tree.xpath('//html//body//*/text()')
+    allImages += images[0].splitlines()
+~~~
+
+This section of code adds all the URL's from each search term to an array.
