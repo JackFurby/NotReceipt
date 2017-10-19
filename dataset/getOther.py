@@ -15,14 +15,11 @@ for pageSearch in range(len(searchTerms)):
     images = tree.xpath('//html//body//*/text()')
     allImages += images[0].splitlines()
 
-# writes CSV file with image URL in format image URL, image name, 0
-# image URL = URL of the image
-# image name = name of image once downloaded (will rename image in seperate script)
-# 0 = image is not of a receipt
+# writes CSV file with image URL (separated by row)
 csvfile = open('notReceipt.csv', 'w', newline='', encoding='utf-8')
 writer = csv.writer(csvfile, delimiter=",")
 imageNum = 1
 for row in allImages:
-    writer.writerow([row, "notReceipt-" + str(imageNum), "0"])
+    writer.writerow([row])
     imageNum += 1
 csvfile.close()

@@ -30,20 +30,17 @@ for i in range(86):
 The site holding the images is expressexpense.com. They have 86 pages of images with each page holding 50 images. The images are not all images and some receipts are old or hand written. This is not a problem but to ensure the data is good I will be going over each result in a future script. This part of the script gets the URL of each image and adds it to an array. I expect there is some more optimization I can do but this part of the script will take some time to complete (mostly loading each web page).
 
 ~~~Python
-# writes CSV file with image URL in format image URL, image name, 1
-# image URL = URL of the image
-# image name = name of image once downloaded (will rename image in seperate script)
-# 1 = image is of a receipt
+# writes CSV file with image URL (separated by row)
 csvfile = open('receipt.csv', 'w', newline='')
 writer = csv.writer(csvfile, delimiter=",")
 imageNum = 1
 for row in allImages:
-    writer.writerow([row, "receipt-" + str(imageNum), "1"])
+    writer.writerow([row])
     imageNum += 1
 csvfile.close()
 ~~~
 
-The final part of this script takes the URL's and writes them to a CSV file. The CSV file is structured with the first column holding the URL, the second holding the name I will give the image once downloaded and the third holding a 1 which will represent being a receipt.
+The final part of this script takes the URL's and writes them to a CSV file. The CSV file is structured with the URLs separated by row.
 
 ## getOther.py
 
@@ -60,3 +57,27 @@ for pageSearch in range(len(searchTerms)):
 ~~~
 
 This section of code adds all the URL's from each search term to an array.
+
+## Downloading images
+
+For downloading images there were 2 option I could take. One would be to use Python requests and the other would be to use xargs in a terminal. I used xargs as after testing I was able to successfully download more images with it. Unfortunately even with 4000 odd URL's for images of receipts I only managed to download just over 2000 of them. This was due to a large number of them no longer being available or otherwise failing to respond to my request. I expect this number to go down when I go over them so an extra source may be necessary when it come to training the neural network I will be making.
+
+~~~ bash
+tr -d '\r' < receipt.csv > newReceipt.csv
+~~~
+
+This command removes return at the end of each row in the CSV file.
+
+~~~ bash
+awk '{ print "\""$0"\""}' newReceipt.csv > newReceipt2.csv
+~~~
+
+Here quotations are added to the beginning and end of each URL so no errors are thrown when some characters are present.
+
+~~~ bash
+xargs -P24 -n 1 curl -k -O < newReceipt2.csv
+~~~
+
+Finally this command downloads the images. It is using parallelization to speed up the process. I also added the '-k' flag which means there are no certificate checks. This was added as a few of the images could not be downloaded due to not having the correct credentials.
+
+The final command will take a while to complete and you should either run the commands from where you want to save the images or set the save location in the command. The first 2 commands will create a new CSV file. Once you have made the last one (newReceipt2.csv) the previous CSV files are not necessary and they can be deleted. The same commands can be run on notReceipt images with modification to path names.

@@ -13,14 +13,11 @@ for i in range(86):
     images = tree.xpath('//div[@class="record"]//a/@data-featherlight')
     allImages += images
 
-# writes CSV file with image URL in format image URL, image name, 1
-# image URL = URL of the image
-# image name = name of image once downloaded (will rename image in seperate script)
-# 1 = image is of a receipt
+# writes CSV file with image URL (separated by row)
 csvfile = open('receipt.csv', 'w', newline='')
 writer = csv.writer(csvfile, delimiter=",")
 imageNum = 1
 for row in allImages:
-    writer.writerow([row, "receipt-" + str(imageNum), "1"])
+    writer.writerow([row])
     imageNum += 1
 csvfile.close()
