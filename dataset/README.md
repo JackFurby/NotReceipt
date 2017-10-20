@@ -60,7 +60,9 @@ This section of code adds all the URL's from each search term to an array.
 
 ## Downloading images
 
-For downloading images there were 2 option I could take. One would be to use Python requests and the other would be to use xargs in a terminal. I used xargs as after testing I was able to successfully download more images with it. Unfortunately even with 4000 odd URL's for images of receipts I only managed to download just over 2000 of them. This was due to a large number of them no longer being available or otherwise failing to respond to my request. I expect this number to go down when I go over them so an extra source may be necessary when it come to training the neural network I will be making.
+For downloading images there were 2 option I could take. One would be to use Python requests and the other would be to use xargs in a terminal. I used xargs as after testing I was able to successfully download more images with it. Unfortunately even with 4000 odd URL's for images of receipts I only managed to download just over 2000 of them. This was due to a large number of them no longer being available or otherwise failing to respond to my request. I expect this number to go down when I go over them so an extra source may be necessary when it come to training the neural network I will be making. 
+
+These commands work fine on Unix systems but for Windows they will not run. You can get round this by installing Windows Subsystem for Linux.
 
 ~~~ bash
 tr -d '\r' < receipt.csv > newReceipt.csv
