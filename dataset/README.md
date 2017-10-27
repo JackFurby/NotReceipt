@@ -139,7 +139,7 @@ def loadImages(filePath, saveLocation, i, j):
 
 This section of script controls the editing of the images. It is given a directory and will go through the content. Each image will be edited and output one in black and white, one cropped, two rotated, one blurred and one sharpened which causes noise. Each image is then sent to be saved (not included in this section). With all the edits exact making each image black and white the change is pseudo random within a given range.
 
-~~~
+~~~ Python
 def imageDone(CurrentImage, saveLocation, i, num):
 	CurrentImage = CurrentImage.resize((128, 128))
 	CurrentImage = np.array(CurrentImage)
