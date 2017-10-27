@@ -67,10 +67,14 @@ i , j = loadImages(receiptFrom, receiptTo, i, j)
 print("\n\n--------------\n\n" + "Total input receipt images:", i)
 print("Total output receipt images:", j, "\n\n--------------\n\n")
 
+# reference point to work out none receipt images
+l = i
+m = j
+
 # creats images of none receipts
 i, j = loadImages(notReceiptFrom, notReceiptTo, i, j)
-print("\n\n--------------\n\n" + "Total input none receipt images:", i)
-print("Total output none receipt images:", j, "\n\n--------------")
+print("\n\n--------------\n\n" + "Total input none receipt images:", i - l)
+print("Total output none receipt images:", j - m, "\n\n--------------")
 
 print("\n\n--------------\n\n" + "Total input images:", i)
 print("Total output images:", j, "\n\n--------------\n\n")
