@@ -86,7 +86,7 @@ The final command will take a while to complete and you should either run the co
 
 ## Making dataset
 
-Making the dataset was the case of taking in every image I downloaded and had not removed when I checked over the images in addition to any image I had added (I added around 300 images). The Python script makeData would take in the image and make some pseudo random edits to them and save the original and the edits to PNG files. The output is the images in folders. All the receipt images and in a folder called "receipt" and the others are in a folder called "notReceipt". The Python script works but is not perfect. For the images I had (5429) it took about 10 minutes to run and there is no error checking for input images. It is expected the directory containing the input images only contains images. I decided not to make the edits to improve the script because I would only run through the script once, so the extra time spent improving the script would be higher than just running through it as it is.
+Making the dataset was the case of taking in every image I downloaded and had not removed after checking over them in addition to any image I had added (I added around 300 images). The Python script makeData takes in the images and make some pseudo random edits to them and saves the original and the edits to PNG files. The output is the images in folders. All the receipt images are in a folder called "receipt" and the others are in a folder called "notReceipt". The Python script works but is not perfect. For the images I had (5429) it took about 10 minutes to run and there is no error checking for input images. It is expected the directory containing the input images only contains images. I decided not to make the edits to improve the script because I would only run through the script once, so the extra time spent improving the script would be higher than just running through it as it is.
 
 In total I inputted 5429 images of which 2008 were receipts and 3421 were other. The output contained 12048 images of receipts and 20526 of other images coming to a total of 32574 images. I will need to balance this before training.
 
@@ -137,7 +137,7 @@ def loadImages(filePath, saveLocation, i, j):
 	return i, j
 ~~~
 
-This section of script controls the editing of the images. It is given a directory and will go through the content. Each image will be edited and output one in black and white, one cropped, two rotated, one blurred and one sharpened which causes noise. Each image is then sent to be saved (not included in this section). With all the edits exact making each image black and white the change is pseudo random within a given range.
+This section of script controls the editing of the images. It is given a directory and will go through the content. Each image will be edited and output one in black and white, one cropped, two rotated, one blurred and one sharpened which causes noise. Each image is then sent to be saved (not included in this section). With all the edits except making each image black and white are pseudo random within a given range.
 
 ~~~ Python
 def imageDone(CurrentImage, saveLocation, i, num):
