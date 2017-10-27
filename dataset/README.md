@@ -60,7 +60,7 @@ This section of code adds all the URL's from each search term to an array.
 
 ## Downloading images
 
-For downloading images there were 2 option I could take. One would be to use Python requests and the other would be to use xargs in a terminal. I used xargs as after testing I was able to successfully download more images with it. Unfortunately even with 4000 odd URL's for images of receipts I only managed to download just over 2000 of them. This was due to a large number of them no longer being available or otherwise failing to respond to my request. I expect this number to go down when I go over them so an extra source may be necessary when it come to training the neural network I will be making. 
+For downloading images there were 2 option I could take. One would be to use Python requests and the other would be to use xargs in a terminal. I used xargs as after testing I was able to successfully download more images with it. Unfortunately even with 4000 odd URL's for images of receipts I only managed to download just over 2000 of them. This was due to a large number of them no longer being available or otherwise failing to respond to my request. I expect this number to go down when I go over them so an extra source may be necessary when it comes to training the neural network I will be making. 
 
 These commands work fine on Unix systems but for Windows they will not run. You can get round this by installing Windows Subsystem for Linux.
 
@@ -83,3 +83,68 @@ xargs -P24 -n 1 curl -k -O < newReceipt2.csv
 Finally this command downloads the images. It is using parallelization to speed up the process. I also added the '-k' flag which means there are no certificate checks. This was added as a few of the images could not be downloaded due to not having the correct credentials.
 
 The final command will take a while to complete and you should either run the commands from where you want to save the images or set the save location in the command. The first 2 commands will create a new CSV file. Once you have made the last one (newReceipt2.csv) the previous CSV files are not necessary and they can be deleted. The same commands can be run on notReceipt images with modification to path names.
+
+## Making dataset
+
+Making the dataset was the case of taking in every image I downloaded and had not removed when I checked over the images in addition to any image I had added (I added around 300 images). The Python script makeData would take in the image and make some pseudo random edits to them and save the original and the edits to PNG files. The output is the images in folders. All the receipt images and in a folder called "receipt" and the others are in a folder called "notReceipt". The Python script works but is not perfect. For the images I had (5429) it took about 10 minutes to run and there is no error checking for input images. It is expected the directory containing the input images only contains images. I decided not to make the edits to improve the script because I would only run through the script once, so the extra time spent improving the script would be higher than just running through it as it is.
+
+In total I inputted 5429 images of which 2008 were receipts and 3421 were other. The output contained 12048 images of receipts and 20526 of other images coming to a total of 32574 images. I will need to balance this before training.
+
+~~~Python
+import numpy as np
+import os
+from PIL import Image
+from PIL import ImageFilter
+from random import uniform, randint
+~~~
+
+To access, edit and save the images I used the packages listed above.
+
+~~~Python
+# returns a image which has been randomly cropped
+def imageCrop(CurrentImage):
+    width, height = CurrentImage.size
+    return CurrentImage.crop((width/uniform(8, 15), height/uniform(8, 15), (width - width/uniform(8, 15)), (height - height/uniform(8, 15))))
+
+# returns the input image randomly rotated
+def imagerotate(CurrentImage):
+    return CurrentImage.rotate(randint(1, 359))
+
+# returns the input image randomly blured
+def imageGaussianBlur(CurrentImage):
+    return CurrentImage.filter(ImageFilter.GaussianBlur(uniform(0.5, 1.7)))
+
+# returns the input image randomly sharpened
+def imageUnsharpMask(CurrentImage):
+    return CurrentImage.filter(ImageFilter.UnsharpMask(uniform(0.5, 1.7), randint(1, 500), randint(1, 3)))
+
+# loads in a image and edits it. One image will output six images
+def loadImages(filePath, saveLocation, i, j):
+	for file in os.listdir(filePath):
+		newImage = Image.open(filePath + file).convert("L")
+		imageDone(newImage, saveLocation, i, 1)
+		imageDone(imageCrop(newImage), saveLocation, i, 2)
+		imageDone(imagerotate(newImage), saveLocation, i, 3)
+		imageDone(imagerotate(newImage), saveLocation, i, 4)
+		imageDone(imageGaussianBlur(newImage), saveLocation, i, 5)
+		imageDone(imageUnsharpMask(newImage), saveLocation, i, 6)
+
+		i += 1
+		j += 6
+
+		if i % 500 == 0:
+			print("Images saved:", j)
+	return i, j
+~~~
+
+This section of script controls the editing of the images. It is given a directory and will go through the content. Each image will be edited and output one in black and white, one cropped, two rotated, one blurred and one sharpened which causes noise. Each image is then sent to be saved (not included in this section). With all the edits exact making each image black and white the change is pseudo random within a given range.
+
+~~~
+def imageDone(CurrentImage, saveLocation, i, num):
+	CurrentImage = CurrentImage.resize((128, 128))
+	CurrentImage = np.array(CurrentImage)
+	CurrentImage = Image.fromarray(CurrentImage)
+	CurrentImage.save(saveLocation + str(i) + "_" + str(num) + ".png", "PNG")
+~~~
+
+Once edited the image is saved. This takes the image, converts it to a 128 by 128 pixel image (with no crop) then saves it as a PNG image to the given path.
