@@ -84,7 +84,7 @@ Finally this command downloads the images. It is using parallelization to speed 
 
 The final command will take a while to complete and you should either run the commands from where you want to save the images or set the save location in the command. The first 2 commands will create a new CSV file. Once you have made the last one (newReceipt2.csv) the previous CSV files are not necessary and they can be deleted. The same commands can be run on notReceipt images with modification to path names.
 
-## Making dataset
+## Making a dataset
 
 Making the dataset was the case of taking in every image I downloaded and had not removed after checking over them in addition to any image I had added (I added around 300 images). The Python script makeData takes in the images and make some pseudo random edits to them and saves the original and the edits to PNG files. The output is the images in folders. All the receipt images are in a folder called "receipt" and the others are in a folder called "notReceipt". The Python script works but is not perfect. For the images I had (5429) it took about 10 minutes to run and there is no error checking for input images. It is expected the directory containing the input images only contains images. I decided not to make the edits to improve the script because I would only run through the script once, so the extra time spent improving the script would be higher than just running through it as it is.
 
@@ -148,3 +148,58 @@ def imageDone(CurrentImage, saveLocation, i, num):
 ~~~
 
 Once edited the image is saved. This takes the image, converts it to a 128 by 128 pixel image (with no crop) then saves it as a PNG image to the given path.
+
+## balancing data
+
+As mentioned with making the dataset it is very unbalanced. To fix this balanceData.py takes in every file and what category it is under and adds them all to one numpy array which is saved. Along the way this is balanced to which ever category has the smallest length.
+
+~~~Python
+import numpy as np
+import os
+import random
+~~~
+
+~~~Python
+# Returnes an array for image file paths and image type
+def addItem(filePath, type):
+	data = []
+	for file in os.listdir(filePath):
+		data.append([filePath + file, type])
+	return data
+
+
+# folders containing images
+receipt = "K:/notReceipt/processed/receipt/"
+notReceipt = "K:/notReceipt/processed/notReceipt/"
+
+receiptData = addItem(receipt, 'receipt')
+notReceiptData = addItem(notReceipt, 'notReceipt')
+
+random.shuffle(receiptData)
+random.shuffle(notReceiptData)
+~~~
+
+This section reads in each file and adds them to corresponding arrays. The arrays are shuffled at this point. This is not required but as I did not need the images in sequence and will be cutting off a section of the array shuffling the array will mean most of the original images will still be used.
+
+~~~Python
+# ensures receipts and notReceipts are balanced
+if len(receiptData) > len(notReceiptData):
+	maxLengh = len(receiptData)
+else:
+	maxLengh = len(notReceiptData)
+
+print(len(receiptData), len(notReceiptData))
+
+receiptData = receiptData[:maxLengh]
+notReceiptData = notReceiptData[:maxLengh]
+
+print(len(receiptData), len(notReceiptData))
+
+# joins seperate arrays and saves it as a numpy array
+data = np.concatenate((receiptData, notReceiptData))
+random.shuffle(data)
+print(len(data))
+np.save('notReceiptData.npy', data)
+~~~
+
+Finally, the longest array is shortened to the length of the shortest array and both arrays are joined together. The arrays are reshuffled again and then saved to file.
