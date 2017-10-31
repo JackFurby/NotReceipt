@@ -4,6 +4,7 @@ from PIL import Image
 from PIL import ImageFilter
 from random import uniform, randint
 
+
 # resizes the image and saves them as PNG images
 def imageDone(CurrentImage, saveLocation, i, num):
 	CurrentImage = CurrentImage.resize((128, 128))
@@ -11,22 +12,27 @@ def imageDone(CurrentImage, saveLocation, i, num):
 	CurrentImage = Image.fromarray(CurrentImage)
 	CurrentImage.save(saveLocation + str(i) + "_" + str(num) + ".png", "PNG")
 
+
 # returns a image which has been randomly cropped
 def imageCrop(CurrentImage):
-    width, height = CurrentImage.size
-    return CurrentImage.crop((width/uniform(8, 15), height/uniform(8, 15), (width - width/uniform(8, 15)), (height - height/uniform(8, 15))))
+	width, height = CurrentImage.size
+	return CurrentImage.crop((width/uniform(8, 15), height/uniform(8, 15), (width - width/uniform(8, 15)), (height - height/uniform(8, 15))))
+
 
 # returns the input image randomly rotated
 def imagerotate(CurrentImage):
-    return CurrentImage.rotate(randint(1, 359))
+	return CurrentImage.rotate(randint(1, 359))
+
 
 # returns the input image randomly blured
 def imageGaussianBlur(CurrentImage):
-    return CurrentImage.filter(ImageFilter.GaussianBlur(uniform(0.5, 1.7)))
+	return CurrentImage.filter(ImageFilter.GaussianBlur(uniform(0.5, 1.7)))
+
 
 # returns the input image randomly sharpened
 def imageUnsharpMask(CurrentImage):
-    return CurrentImage.filter(ImageFilter.UnsharpMask(uniform(0.5, 1.7), randint(1, 500), randint(1, 3)))
+	return CurrentImage.filter(ImageFilter.UnsharpMask(uniform(0.5, 1.7), randint(1, 500), randint(1, 3)))
+
 
 # loads in a image and edits it. One image will output six images
 def loadImages(filePath, saveLocation, i, j):
@@ -46,6 +52,7 @@ def loadImages(filePath, saveLocation, i, j):
 			print("Images saved:", j)
 	return i, j
 
+
 # folders there the images are found and saved
 receiptFrom = "K:/notReceipt/original/receipt/"
 notReceiptFrom = "K:/notReceipt/original/notReceipt/"
@@ -63,7 +70,7 @@ if not os.path.exists(notReceiptTo):
 	os.makedirs(notReceiptTo)
 
 # creats images of receipts
-i , j = loadImages(receiptFrom, receiptTo, i, j)
+i, j = loadImages(receiptFrom, receiptTo, i, j)
 print("\n\n--------------\n\n" + "Total input receipt images:", i)
 print("Total output receipt images:", j, "\n\n--------------\n\n")
 
