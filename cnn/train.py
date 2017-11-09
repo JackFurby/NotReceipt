@@ -21,8 +21,10 @@ def convolution(image, filterSize, stride, padding, filterLayers, filters=None, 
 			image = np.pad(image, ((padding,padding), (padding,padding), (0,0)), mode='constant')  # adds padding of 0's arround image
 		else:
 			print("Convolution is not possible. Try a different stride or padding")
+			return
 	else:
 		print("Convolution is not possible. Try a different stride or padding")
+		return
 
 	# Creats filters if they dont already exist
 	if filters == None:
