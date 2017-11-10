@@ -22,28 +22,57 @@ The first section of the convolution layer will check the inputs. If the width o
 
 ~~~ Python
 if filters == None:
-		filters = []
-		for i in range(filterLayers):
-			filters.append(np.zeros([filterSize[0], filterSize[1], image.shape[2]], dtype=int))
+	filters = []
+	for i in range(filterLayers):
+		filters.append(np.zeros([filterSize[0], filterSize[1], image.shape[2]], dtype=int))
 
-	# Creats bias if they dont already exist
-	if bias == None:
-		bias = []
-		for i in range(filterLayers):
-			newBias = np.zeros([1, 1, 1], dtype=int)
-			newBias[0, 0, 0] = 0
-			bias.append(newBias)
+# Creats bias if they dont already exist
+if bias == None:
+	bias = []
+	for i in range(filterLayers):
+		newBias = np.zeros([1, 1, 1], dtype=int)
+		newBias[0, 0, 0] = 0
+		bias.append(newBias)
 ~~~
 
 If filters and / or bias were blank the above code will create them. For the filters it will make some numpy arrays with the width and height of the input filter size with the depth of the input image depth. This will be repeated for the number of filter layers there are and each time the result will be added to the end of an array. The same is repeated for the bias but the numpy array is always 1x1x1.
 
 ~~~ Python
 for i in range(outshape.shape[2]):  # number of filters
-		filterArray = filters[i]
-		for j in range(0, outshape.shape[1]):  # height of activation map
-			for k in range(0, outshape.shape[0]):  # width of activation map
-				outshape[k, j, i] = np.sum(image[k*stride:filterArray.shape[0] + k*stride, j*stride:filterArray.shape[1] + j*stride, :] * filterArray[:, :, :]) + bias[i]
-		return outshape, filters, bias # retult, filiters and bias returned
+	filterArray = filters[i]
+	for j in range(0, outshape.shape[1]):  # height of activation map
+		for k in range(0, outshape.shape[0]):  # width of activation map
+			outshape[k, j, i] = np.sum(image[k*stride:filterArray.shape[0] + k*stride, j*stride:filterArray.shape[1] + j*stride, :] * filterArray[:, :, :]) + bias[i]
+return outshape, filters, bias # retult, filiters and bias returned
 ~~~
 
 Finally, we get onto the convolve section. Here the image is convolved with each time the section of the image being looked at Element-wise multiplication will be applied to the filter with the bias being added on at the end. The result will be summed up and added to the output matrix. Once complete the output, filters and bias will be returned.
+
+# Pooling Layer
+
+The pooling layer takes in an input of a numpy array, filter size and stride. The output will be a numpy array which has the same depth as the input but will often be smaller than the input in terms of width and height. The aim of this layer is to reduce the amount of data we have to work with.  
+
+~~~ Python
+def maxPooling(image, filterSize, stride):
+	if (((image.shape[0] - filterSize[0]) / stride) + 1).is_integer():  # checks output is an int
+		if (((image.shape[1] - filterSize[1]) / stride) + 1).is_integer():  # checks output is an int
+			outshape = np.zeros([int(((image.shape[0] - filterSize[0]) / stride + 1)), int(((image.shape[1] - filterSize[1]) / stride + 1)), image.shape[2]], dtype=int)  # creats the output array
+		else:
+			print("Convolution is not possible. Try a different stride or filter size")
+			return
+	else:
+		print("Convolution is not possible. Try a different stride or filter size")
+		return
+~~~
+
+The first section of the max pooling function is very similar to the convolutional layer. It will ensure pooling is possible with the inputs by taking the width and height (W) minus the filter width and height (F) all divided by the stride + 1. This makes up the formula (W-F)/S+1. If the result is an integer the output array will be created with the for mentioned results. The depth will be the same as the input array.
+
+~~~ Python
+for i in range(outshape.shape[2]):  # number of layers
+	for j in range(0, outshape.shape[1]):  # height of output array
+		for k in range(0, outshape.shape[0]):  # width of output array
+			outshape[k, j, i] = np.amax(image[k*stride:k*stride + filterSize[0], j*stride:j*stride + filterSize[1], :])
+return outshape
+~~~
+
+Finally, the polling will occur. This will loop over the input array like with convolution but this time the amax function will be applied within numpy. This will look at a given array and return the highest value. This value will be added to the output. Once complete the output array will be returned.
