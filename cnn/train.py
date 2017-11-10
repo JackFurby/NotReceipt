@@ -46,7 +46,25 @@ def convolution(image, filterSize, stride, padding, filterLayers, filters=None, 
 		for j in range(0, outshape.shape[1]):  # height of activation map
 			for k in range(0, outshape.shape[0]):  # width of activation map
 				outshape[k, j, i] = np.sum(image[k*stride:filterArray.shape[0] + k*stride, j*stride:filterArray.shape[1] + j*stride, :] * filterArray[:, :, :]) + bias[i]
-		return outshape, filters, bias # retult, filiters and bias returned
+	return outshape, filters, bias # retult, filiters and bias returned
+
+# performs max pooling on a input numpy array. Output will just be a numpy array with max pooling applied
+def maxPooling(image, filterSize, stride):
+	if (((image.shape[0] - filterSize[0]) / stride) + 1).is_integer():  # checks output is an int
+		if (((image.shape[1] - filterSize[1]) / stride) + 1).is_integer():  # checks output is an int
+			outshape = np.zeros([int(((image.shape[0] - filterSize[0]) / stride + 1)), int(((image.shape[1] - filterSize[1]) / stride + 1)), image.shape[2]], dtype=int)  # creats the output array
+		else:
+			print("Convolution is not possible. Try a different stride or filter size")
+			return
+	else:
+		print("Convolution is not possible. Try a different stride or filter size")
+		return
+
+	for i in range(outshape.shape[2]):  # number of layers
+		for j in range(0, outshape.shape[1]):  # height of output array
+			for k in range(0, outshape.shape[0]):  # width of output array
+				outshape[k, j, i] = np.amax(image[k*stride:k*stride + filterSize[0], j*stride:j*stride + filterSize[1], :])
+	return outshape
 
 # This is test data - delete this once finnished makeing CNN
 def exampleTestData():
@@ -119,18 +137,39 @@ def exampleTestData():
 
 	biasTest = [b1, b2]
 
-	convolution(testArray, (3, 3), 2, 1, 2, testFilters, biasTest)
+	outputData, conFilters, conBias = convolution(testArray, (3, 3), 2, 1, 2, testFilters, biasTest)
+
+	# testing for pooling
+
+	testPooling = np.empty([4, 4, 1], dtype=int)
+
+	testPooling[:, :, 0] = np.array([[1, 1, 2, 4],
+							[5, 6, 7, 8],
+							[3, 2, 1, 0],
+							[1, 2, 3, 4]])
+
+	# print(testPooling[:,:,0])
+
+	outputDataPooling = maxPooling(testPooling, (2, 2), 2)
+
+	# print(outputDataPooling[:,:,0])
 
 
 exampleTestData()
 
 
-trainData, testData = getData("notReceiptData.npy")
+# trainData, testData = getData("notReceiptData.npy")
 
 # np.set_printoptions(threshold=np.nan)
 
 # more test data (this uses a real image)
-newImage = Image.open(trainData[0][0])
+# newImage = Image.open(trainData[0][0])
+newImage = Image.open("/Users/jack/Documents/programming/notReceipt/dataset/test/0_1.png")
 newImage = np.array(newImage)  # pass this into convolution as image
 newImage = np.reshape(newImage, (newImage.shape[0], newImage.shape[1], 1))
-outputData, conFilters, conBias = convolution(newImage, (64, 64), 1, 1, 8)
+
+outputData, conFilters, conBias = convolution(newImage, (5, 5), 1, 1, 8)
+print(outputData.shape)
+
+outputDataPooling = maxPooling(outputData, (2, 2), 2)
+print(outputDataPooling.shape)
