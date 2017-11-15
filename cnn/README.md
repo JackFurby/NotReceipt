@@ -76,3 +76,12 @@ return outshape
 ~~~
 
 Finally, the polling will occur. This will loop over the input array like with convolution but this time the amax function will be applied within numpy. This will look at a given array and return the highest value. This value will be added to the output. Once complete the output array will be returned.
+
+# ReLu layer
+
+The ReLu layer will take in an input of a numpy array and return an array of the same size but with all values less than 0 replaced with 0.  
+
+~~~ Python
+def relu(image):
+	return image.clip(min=0)
+~~~
