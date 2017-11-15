@@ -46,7 +46,7 @@ def convolution(image, filterSize, stride, padding, filterLayers, filters=None, 
 		for j in range(0, outshape.shape[1]):  # height of activation map
 			for k in range(0, outshape.shape[0]):  # width of activation map
 				outshape[k, j, i] = np.sum(image[k*stride:filterArray.shape[0] + k*stride, j*stride:filterArray.shape[1] + j*stride, :] * filterArray[:, :, :]) + bias[i]
-	return outshape, filters, bias # retult, filiters and bias returned
+	return outshape, filters, bias  # result, filters and bias returned
 
 # performs max pooling on a input numpy array. Output will just be a numpy array with max pooling applied
 def maxPooling(image, filterSize, stride):
