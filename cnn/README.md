@@ -43,7 +43,7 @@ for i in range(outshape.shape[2]):  # number of filters
 	for j in range(0, outshape.shape[1]):  # height of activation map
 		for k in range(0, outshape.shape[0]):  # width of activation map
 			outshape[k, j, i] = np.sum(image[k*stride:filterArray.shape[0] + k*stride, j*stride:filterArray.shape[1] + j*stride, :] * filterArray[:, :, :]) + bias[i]
-return outshape, filters, bias # retult, filiters and bias returned
+return outshape, filters, bias  # result, filters and bias returned
 ~~~
 
 Finally, we get onto the convolve section. Here the image is convolved with each time the section of the image being looked at Element-wise multiplication will be applied to the filter with the bias being added on at the end. The result will be summed up and added to the output matrix. Once complete the output, filters and bias will be returned.
