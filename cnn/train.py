@@ -66,6 +66,10 @@ def maxPooling(image, filterSize, stride):
 				outshape[k, j, i] = np.amax(image[k*stride:k*stride + filterSize[0], j*stride:j*stride + filterSize[1], :])
 	return outshape
 
+# performs ReLu on a given numpy array
+def relu(image):
+	return image.clip(min=0)
+
 # This is test data - delete this once finnished makeing CNN
 def exampleTestData():
 	test1 = np.array([[1, 0, 2, 1, 0],
@@ -138,6 +142,7 @@ def exampleTestData():
 	biasTest = [b1, b2]
 
 	outputData, conFilters, conBias = convolution(testArray, (3, 3), 2, 1, 2, testFilters, biasTest)
+	# print(outputData)
 
 	# testing for pooling
 
@@ -154,22 +159,30 @@ def exampleTestData():
 
 	# print(outputDataPooling[:,:,0])
 
+	outputRelu = relu(outputData)
+	# print(outputRelu.shape)
+	# print(outputRelu)
+
 
 exampleTestData()
 
 
-# trainData, testData = getData("notReceiptData.npy")
+trainData, testData = getData("notReceiptData.npy")
 
 # np.set_printoptions(threshold=np.nan)
 
 # more test data (this uses a real image)
-# newImage = Image.open(trainData[0][0])
-newImage = Image.open("/Users/jack/Documents/programming/notReceipt/dataset/test/0_1.png")
+newImage = Image.open(trainData[0][0])
+# newImage = Image.open("/Users/jack/Documents/programming/notReceipt/dataset/test/0_1.png")
 newImage = np.array(newImage)  # pass this into convolution as image
 newImage = np.reshape(newImage, (newImage.shape[0], newImage.shape[1], 1))
 
 outputData, conFilters, conBias = convolution(newImage, (5, 5), 1, 1, 8)
-print(outputData.shape)
+# print(outputData.shape)
 
 outputDataPooling = maxPooling(outputData, (2, 2), 2)
-print(outputDataPooling.shape)
+# print(outputDataPooling.shape)
+
+outputReLu = relu(outputDataPooling)
+# print(outputReLu.shape)
+# print(outputReLu)
