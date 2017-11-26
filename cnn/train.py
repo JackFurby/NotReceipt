@@ -71,7 +71,7 @@ def relu(image):
 	return image.clip(min=0)
 
 # takes in inputArray and expected result, returns predictions and error
-def softMax(inputArray, expectedResult):
+def softmax(inputArray, expectedResult):
 	# http://cs231n.github.io/linear-classify/
 	inputArray.astype(np.float64)
 	inputArray -= np.max(inputArray)
@@ -219,7 +219,7 @@ def exampleTestData():
 	outputFlatten2, flattenFilters2, flattenBias2 = convolution(outputRelu, (outputRelu.shape[0], outputRelu.shape[1]), 1, 0, 2) # flatten
 	# outputFC, weightsFC, biasFC = fullyConnected(outputFlatten, 2)
 	# print(outputFC)
-	softmaxResult, softmaxError = softMax(outputFlatten2[0][0], [0, 1])
+	softmaxResult, softmaxError = softmax(outputFlatten2[0][0], [0, 1])
 
 	# testing for pooling
 
@@ -247,7 +247,7 @@ def exampleTestData():
 	# outputFC, weightsFC, biasFC = fullyConnected(outputFlatten, 2)
 	# print("outputFC:", outputFC)
 
-	softmaxResult, softmaxError = softMax(outputFlatten2[0][0], [0, 1])
+	softmaxResult, softmaxError = softmax(outputFlatten2[0][0], [0, 1])
 	print('result:', softmaxResult,  'error:', softmaxError)
 
 exampleTestData()
@@ -287,5 +287,5 @@ outputFlatten2, flattenFilters2, flattenBias2 = convolution(outputReLu, (outputR
 # outputFC, weightsFC, biasFC = fullyConnected(outputFlatten, 2)
 # print("outputFC:", outputFC)
 
-softmaxResult, softmaxError = softMax(outputFlatten2[0][0], newImageExpected)
+softmaxResult, softmaxError = softmax(outputFlatten2[0][0], newImageExpected)
 print('result:', softmaxResult,  'error:', softmaxError)
