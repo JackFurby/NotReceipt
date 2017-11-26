@@ -8,7 +8,7 @@ The convolutional layer has the input of an image, filter size, stride, padding,
 def convolution(image, filterSize, stride, padding, filterLayers, filters=None, bias=None):
 	if (((image.shape[0] - filterSize[0] + 2 * padding) / stride) + 1).is_integer():  # checks output is an int
 		if (((image.shape[1] - filterSize[1] + 2 * padding) / stride) + 1).is_integer():  # checks output is an int
-			outshape = np.zeros([int((((image.shape[0] - filterSize[0] + 2 * padding) / stride) + 1)), int((((image.shape[1] - filterSize[1] + 2 * padding) / stride) + 1)), filterLayers], dtype=int)  # creats the activation map (empty)
+			outshape = np.zeros([int((((image.shape[0] - filterSize[0] + 2 * padding) / stride) + 1)), int((((image.shape[1] - filterSize[1] + 2 * padding) / stride) + 1)), filterLayers], dtype=np.float64)  # creats the activation map (empty)
 			image = np.pad(image, ((padding,padding), (padding,padding), (0,0)), mode='constant')  # adds padding of 0's arround image
 		else:
 			print("Convolution is not possible. Try a different stride or padding")
@@ -24,15 +24,13 @@ The first section of the convolution layer will check the inputs. If the width o
 if filters == None:
 	filters = []
 	for i in range(filterLayers):
-		filters.append(np.zeros([filterSize[0], filterSize[1], image.shape[2]], dtype=int))
+		filters.append(np.random.rand(filterSize[0], filterSize[1], image.shape[2]))
 
 # Creats bias if they dont already exist
 if bias == None:
 	bias = []
 	for i in range(filterLayers):
-		newBias = np.zeros([1, 1, 1], dtype=int)
-		newBias[0, 0, 0] = 0
-		bias.append(newBias)
+		bias.append(np.random.rand(1, 1, 1))
 ~~~
 
 If filters and / or bias were blank the above code will create them. For the filters it will make some numpy arrays with the width and height of the input filter size with the depth of the input image depth. This will be repeated for the number of filter layers there are and each time the result will be added to the end of an array. The same is repeated for the bias but the numpy array is always 1x1x1.
@@ -56,12 +54,12 @@ The pooling layer takes in an input of a numpy array, filter size and stride. Th
 def maxPooling(image, filterSize, stride):
 	if (((image.shape[0] - filterSize[0]) / stride) + 1).is_integer():  # checks output is an int
 		if (((image.shape[1] - filterSize[1]) / stride) + 1).is_integer():  # checks output is an int
-			outshape = np.zeros([int(((image.shape[0] - filterSize[0]) / stride + 1)), int(((image.shape[1] - filterSize[1]) / stride + 1)), image.shape[2]], dtype=int)  # creats the output array
+			outshape = np.ones([int(((image.shape[0] - filterSize[0]) / stride + 1)), int(((image.shape[1] - filterSize[1]) / stride + 1)), image.shape[2]], dtype=np.float64)  # creats the output array
 		else:
-			print("Convolution is not possible. Try a different stride or filter size")
+			print("Pooling is not possible. Try a different stride or filter size")
 			return
 	else:
-		print("Convolution is not possible. Try a different stride or filter size")
+		print("Pooling is not possible. Try a different stride or filter size")
 		return
 ~~~
 
@@ -84,4 +82,20 @@ The ReLu layer will take in an input of a numpy array and return an array of the
 ~~~ Python
 def relu(image):
 	return image.clip(min=0)
+~~~
+
+# Softmax layer
+
+The softmax layer takes in an array which has the shape 1 by the number of possible classifications of the network. np.max() is performed to reduce one of the classifications to 0 and the other to the difference. This was done as getting the exponent was not possible with very large numbers. After this tanh was performed to set the values for each prediction to a value between -1 and 1. I will consider replacing this if it causes problems in the future. Finally, the output prediction is calculated. This will return a percentage for each classification with the closer the prediction is to 1 the more likely the network thinks the input falls under that category. All the predictions summed together will equal 1. To get an error (this will be used with back propagation) the negative log is calculated (cross-entropy). This is calculated by the equation -(yt log(yp) + (1 - yt) log(1 - yp)). The prediction and error are returned.
+
+~~~ Python
+def softmax(inputArray, expectedResult):
+	# http://cs231n.github.io/linear-classify/
+	inputArray.astype(np.float64)
+	inputArray -= np.max(inputArray)
+	inputArray = np.tanh(inputArray)  # look into replacing this in the future?
+	output = np.exp(inputArray) / np.sum(np.exp(inputArray))
+	expectedResult = np.array(expectedResult)
+	error = -np.sum(np.multiply(expectedResult, np.log(output)) + np.multiply((1-expectedResult), np.log(1-output)))
+	return output, error
 ~~~
