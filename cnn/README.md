@@ -86,16 +86,12 @@ def relu(image):
 
 # Softmax layer
 
-The softmax layer takes in an array which has the shape 1 by the number of possible classifications of the network. np.max() is performed to reduce one of the classifications to 0 and the other to the difference. This was done as getting the exponent was not possible with very large numbers. After this tanh was performed to set the values for each prediction to a value between -1 and 1. I will consider replacing this if it causes problems in the future. Finally, the output prediction is calculated. This will return a percentage for each classification with the closer the prediction is to 1 the more likely the network thinks the input falls under that category. All the predictions summed together will equal 1. To get an error (this will be used with back propagation) the negative log is calculated (cross-entropy). This is calculated by the equation -(yt log(yp) + (1 - yt) log(1 - yp)). The prediction and error are returned.
+The softmax layer takes in an array which has the shape 1 by the number of possible classifications of the network. np.max() is performed to reduce one of the classifications to 0 and the other to the difference. This was done as getting the exponent was not possible with very large numbers. Finally, the output prediction is calculated. This will return a percentage for each classification with the closer the prediction is to 1 the more likely the network thinks the input falls under that category.
 
 ~~~ Python
-def softmax(inputArray, expectedResult):
-	# http://cs231n.github.io/linear-classify/
-	inputArray.astype(np.float64)
+def softmax(inputArray):
+	#inputArray.astype(np.float64)
 	inputArray -= np.max(inputArray)
-	inputArray = np.tanh(inputArray)  # look into replacing this in the future?
 	output = np.exp(inputArray) / np.sum(np.exp(inputArray))
-	expectedResult = np.array(expectedResult)
-	error = -np.sum(np.multiply(expectedResult, np.log(output)) + np.multiply((1-expectedResult), np.log(1-output)))
-	return output, error
+	return output
 ~~~
