@@ -36,6 +36,6 @@ print(len(receiptData), len(notReceiptData))
 
 # joins seperate arrays and saves it as a numpy array
 data = np.concatenate((receiptData, notReceiptData))
-random.shuffle(data)
+np.random.shuffle(data)
 print(len(data))
 np.save('notReceiptData.npy', data)

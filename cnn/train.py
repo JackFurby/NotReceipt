@@ -1,5 +1,6 @@
 import numpy as np
 from PIL import Image
+#from sklearn.utils.extmath import softmax
 # import pickle # use this to load and save model
 
 
@@ -70,16 +71,21 @@ def maxPooling(image, filterSize, stride):
 def relu(image):
 	return image.clip(min=0)
 
+
 # takes in inputArray and expected result, returns predictions and error
-def softmax(inputArray, expectedResult):
-	# http://cs231n.github.io/linear-classify/
-	inputArray.astype(np.float64)
+def softmax(inputArray):
+	#inputArray.astype(np.float64)
 	inputArray -= np.max(inputArray)
-	inputArray = np.tanh(inputArray)  # look into replacing this in the future?
 	output = np.exp(inputArray) / np.sum(np.exp(inputArray))
-	expectedResult = np.array(expectedResult)
-	error = -np.sum(np.multiply(expectedResult, np.log(output)) + np.multiply((1-expectedResult), np.log(1-output)))
-	return output, error
+	return output
+
+
+def error(input, expected):
+	#expectedResult = np.array(expected)
+	#error = -np.sum(np.multiply(expectedResult, np.log(input)) + np.multiply((1-expectedResult), np.log(1-input)))
+	error = np.sum(0.5*(expected*input))
+	return error
+
 
 # This is test data - delete this once finnished makeing CNN
 def exampleTestData():
@@ -247,45 +253,58 @@ def exampleTestData():
 	# outputFC, weightsFC, biasFC = fullyConnected(outputFlatten, 2)
 	# print("outputFC:", outputFC)
 
-	softmaxResult, softmaxError = softmax(outputFlatten2[0][0], [0, 1])
+	outputRelu = relu(outputFlatten2)
+
+	softmaxResult, softmaxError = softmax(outputRelu[0][0], [0, 1])
 	print('result:', softmaxResult,  'error:', softmaxError)
 
-exampleTestData()
+#exampleTestData()
+
+
+def forwardRun(model, currentImage, currentExpect):
+
+	outputData, conFilters, conBias = convolution(currentImage, (5, 5), 1, 1, 8, model[0][0], bias=model[0][1])
+	# print(outputData.shape)
+
+	outputDataPooling = maxPooling(outputData, (2, 2), 2)
+	# print(outputDataPooling.shape)
+
+	outputReLu = relu(outputDataPooling)
+	# print(outputReLu.shape)
+	# print(outputReLu)
+
+	outputFlatten, flattenFilters, flattenBias = convolution(outputReLu, (outputReLu.shape[0], outputReLu.shape[1]), 1, 0, 10, model[1][0], bias=model[1][1])  # flatten
+	# print(outputFlatten)
+	# print(outputFlatten.shape)
+	outputFlatten2, flattenFilters2, flattenBias2 = convolution(outputFlatten, (outputFlatten.shape[0], outputFlatten.shape[1]), 1, 0, 2, model[2][0], bias=model[2][1])  # flatten
+
+	# outputFC, weightsFC, biasFC = fullyConnected(outputFlatten, 2)
+	# print("outputFC:", outputFC)
+
+	softmaxResult = softmax(outputFlatten2[0][0])
+	#softmaxResult = softmax(outputFlatten2[0][0])
+	modelError = error(softmaxResult, currentExpect)
+	model = [[conFilters, conBias], [flattenFilters, flattenBias], [flattenFilters2, flattenBias2]]
+
+	return softmaxResult, modelError, model
 
 
 trainData, testData = getData("notReceiptData.npy")
 
-# np.set_printoptions(threshold=np.nan)
+model = [[None, None], [None, None], [None, None]]
 
-# more test data (this uses a real image)
-newImage = Image.open(trainData[0][0])
-newImageExpected = trainData[0][1]
-if newImageExpected == 'receipt':
-	newImageExpected = [1, 0]
-else:
-	newImageExpected = [0, 1]
-# newImage = Image.open("/Users/jack/Documents/programming/notReceipt/dataset/test/0_1.png")
-newImage = np.array(newImage)  # pass this into convolution as image
-newImage = np.reshape(newImage, (newImage.shape[0], newImage.shape[1], 1))
-
-outputData, conFilters, conBias = convolution(newImage, (5, 5), 1, 1, 8)
-# print(outputData.shape)
-
-outputDataPooling = maxPooling(outputData, (2, 2), 2)
-# print(outputDataPooling.shape)
-
-outputReLu = relu(outputDataPooling)
-# print(outputReLu.shape)
-# print(outputReLu)
-
-outputFlatten, flattenFilters, flattenBias = convolution(outputReLu, (outputReLu.shape[0], outputReLu.shape[1]), 1, 0, 10)  # flatten
-# print(outputFlatten)
-# print(outputFlatten.shape)
-outputFlatten2, flattenFilters2, flattenBias2 = convolution(outputReLu, (outputReLu.shape[0], outputReLu.shape[1]), 1, 0, 2)  # flatten
-#print(outputFlatten2)
-
-# outputFC, weightsFC, biasFC = fullyConnected(outputFlatten, 2)
-# print("outputFC:", outputFC)
-
-softmaxResult, softmaxError = softmax(outputFlatten2[0][0], newImageExpected)
-print('result:', softmaxResult,  'error:', softmaxError)
+# passes image into model and adds result to array
+for image in range(len(trainData)):
+	newImage = Image.open(trainData[image][0])
+	newImageExpected = trainData[image][1]
+	if newImageExpected == 'receipt':
+		newImageExpected = [1, 0]
+	else:
+		newImageExpected = [0, 1]
+	# newImage = Image.open("/Users/jack/Documents/programming/notReceipt/dataset/test/0_1.png")
+	newImage = np.array(newImage)  # pass this into convolution as image
+	newImage = np.reshape(newImage, (newImage.shape[0], newImage.shape[1], 1))
+	#print(newImage)
+	result, modelError, modelNew = forwardRun(model, newImage, newImageExpected)
+	model = modelNew
+	print('result:', result,  'error:', modelError)
