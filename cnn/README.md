@@ -90,7 +90,6 @@ The softmax layer takes in an array which has the shape 1 by the number of possi
 
 ~~~ Python
 def softmax(inputArray):
-	#inputArray.astype(np.float64)
 	inputArray -= np.max(inputArray)
 	output = np.exp(inputArray) / np.sum(np.exp(inputArray))
 	return output
