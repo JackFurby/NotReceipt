@@ -81,10 +81,11 @@ def softmax(inputArray):
 
 
 def error(input, expected):
-	#expectedResult = np.array(expected)
-	#error = -np.sum(np.multiply(expectedResult, np.log(input)) + np.multiply((1-expectedResult), np.log(1-input)))
-	error = np.sum(0.5*(expected*input))
+	error = np.sum((0.5)*(expected-input)**2)
 	return error
+
+def Backpropagation(network, error):
+	pass
 
 
 # This is test data - delete this once finnished makeing CNN
